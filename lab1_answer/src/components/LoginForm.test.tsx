@@ -52,8 +52,11 @@ describe("LoginForm", () => {
 
 // Same as abrove, user.type and user.click are asynchronous. 
   it("Should call login function on form submission", async () => {
+// We need mockResolvedValue or mockRejectedValue here to prevent
+// .then() crash caused by undefined return value.
+// The success/failure response doesn't matter for this test
+// because we only care that mockLogin was called.
 	mockLogin.mockResolvedValue({ error: "Invalid username or password" });
-
 
     user.setup();
 
