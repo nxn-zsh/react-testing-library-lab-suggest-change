@@ -34,21 +34,27 @@ describe("LoginForm", () => {
     expect(submitButton).toHaveAttribute("type", "submit");
   });
 
-  it("Should be able to fill the form fields", () => {
+// We should use async/await here because user.type is asynchronous.
+  it("Should be able to fill the form fields", async () => {
     user.setup();
 
     render(<LoginForm />);
 
-    user.type(screen.getByLabelText("Username:"), "testuser");
-    user.type(screen.getByLabelText("Password:"), "testpassword");
+    await user.type(screen.getByLabelText("Username:"), "testuser");
+    await user.type(screen.getByLabelText("Password:"), "testpassword");
 
-    waitFor(() => {
+// We don't need waitFor here because once we finished typing, the input field contained the text in real time.
+    // waitFor(() => {
       expect(screen.getByLabelText("Username:")).toHaveValue("testuser");
       expect(screen.getByLabelText("Password:")).toHaveValue("testpassword");
-    });
+    // });
   });
 
-  it("Should call login function on form submission", () => {
+// Same as abrove, user.type and user.click are asynchronous. 
+  it("Should call login function on form submission", async () => {
+	mockLogin.mockResolvedValue({ error: "Invalid username or password" });
+
+
     user.setup();
 
     render(<LoginForm />);
@@ -57,14 +63,15 @@ describe("LoginForm", () => {
     const passwordInput = screen.getByLabelText("Password:");
     const submitButton = screen.getByRole("button");
 
-    user.type(usernameInput, "testuser");
-    user.type(passwordInput, "testpassword");
+    await user.type(usernameInput, "testuser");
+    await user.type(passwordInput, "testpassword");
 
-    user.click(submitButton);
+    await user.click(submitButton);
 
-    waitFor(() =>
+// It don't need waitFor here because await user.click(submitButton) have already called mocklogin. 
+    // waitFor(() =>
       expect(mockLogin).toHaveBeenCalledWith("testuser", "testpassword")
-    );
+    // );
   });
 
   it("Should navigate to /todos on successful login", async () => {
